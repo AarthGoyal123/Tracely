@@ -1,5 +1,7 @@
 # Tracely
 
+![Tracely dashboard](Public/dashboard01.jpeg)
+
 **Most tools protect users. Ours creates evidence.**
 
 Tracely is an extension-based browser platform for investigating third-party tracking across websites. Designed for regulators, researchers, journalists, and compliance teams—it transforms raw tracker detections into traceable, reproducible evidence.
@@ -29,6 +31,8 @@ Tracely is an extension-based browser platform for investigating third-party tra
 - Search, filter, and sort capabilities
 
 ### 📊 Analytics Page
+![Analytics view](Public/analytics.jpeg)
+*Analytics page: top trackers and distribution charts.*
 - **Top Trackers** - Visual list with horizontal progress bars showing relative sighting frequency
 - **Tracker Distribution Chart** - Bar chart visualization of top 10 trackers with accented gradient design
 - **Key Insights** - Curated analysis of tracker growth, analytics dominance, cross-site tracking, and high-risk activity
@@ -41,6 +45,8 @@ Tracely is an extension-based browser platform for investigating third-party tra
 - Compliance recommendations
 
 ### 📋 Full Research Reports
+![Evidence timeline](Public/evidence.jpeg)
+*Evidence timeline and detailed findings from captures.*
 - **Evidence Timeline** - All observed trackers with timestamps
 - **Reproducibility Controls** - Rerun analysis, freeze snapshots, compare results
 - **Methodology Disclosure** - What data we collect, what we exclude, limitations
@@ -49,6 +55,8 @@ Tracely is an extension-based browser platform for investigating third-party tra
 - **Persistence Metrics** - Days active, first seen, last seen
 
 ### 🌐 Browser Extension
+![Extension popup](Public/extension.jpeg)
+*Extension popup UI for quick site inspection.*
 - Passive observation of HTTP/HTTPS requests
 - Automatic tracker categorization
 - Real-time event logging
@@ -161,6 +169,9 @@ extension/         Chrome extension
 5. Review methodology documentation
 
 ## Data Privacy
+
+![Site metadata](Public/metaData.jpeg)
+*Site metadata and request details captured for evidence.*
 
 ✅ **What we collect:**
 - Third-party domain names
