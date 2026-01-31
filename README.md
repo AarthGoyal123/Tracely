@@ -199,11 +199,7 @@ This is a **complete, functional MVP** ready for production use:
 ## Documentation
 
 - **[QUICKSTART.md](QUICKSTART.md)** - Setup and first steps
-- **[docs/DEMO.md](docs/DEMO.md)** - Interactive demo walkthrough
-- **[docs/PITCH.md](docs/PITCH.md)** - Product positioning and talking points
 
 ## License
-
 ISC
-
 ---
