@@ -13,8 +13,25 @@ dotenv.config()
 const app = express()
 
 // Middleware
+const allowedOrigins = [
+  process.env.CORS_ORIGIN,
+  'https://tracely-pi.vercel.app',
+  'http://localhost:5173',
+].filter(Boolean)
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+
+    const isAllowedOrigin =
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.startsWith('chrome-extension://')
+
+    return isAllowedOrigin
+      ? callback(null, true)
+      : callback(new Error('Not allowed by CORS'))
+  },
   credentials: true,
 }))
 app.use(express.json())
