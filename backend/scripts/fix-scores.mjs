@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const siteSchema = new mongoose.Schema({
   domain: String,
@@ -22,7 +25,8 @@ const calculateScore = (trackerCount, thirdPartyCount, cookieCount) => {
 
 (async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/privacy-lens');
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/privacy-lens';
+    await mongoose.connect(mongoURI);
     console.log('Connected to MongoDB');
     
     const sites = await Site.find({ score: 0, trackerCount: { $gt: 0 } });
