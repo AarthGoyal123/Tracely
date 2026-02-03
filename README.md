@@ -8,7 +8,7 @@ Tracely is an extension-based browser platform for investigating third-party tra
 
 ## 🚀 Live Demo
 
-**Dashboard**: [https://tracely-pi.vercel.app](https://tracely-pi.vercel.app)
+**Dashboard**: [https://tracely-phi.vercel.app](https://tracely-phi.vercel.app)
 
 Try the live demo to explore real tracking data, view analytics, and see full research reports in action!
 

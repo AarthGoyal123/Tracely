@@ -209,7 +209,7 @@ function displaySiteScore(siteData) {
     viewDetailsBtn.style.display = 'block'
     viewDetailsBtn.onclick = () => {
       chrome.tabs.create({
-        url: `https://tracely-pi.vercel.app/site/${currentDomain}`,
+        url: `https://tracely-phi.vercel.app/site/${currentDomain}`,
       })
     }
   }
@@ -220,7 +220,7 @@ const settingsBtn = document.getElementById('settingsBtn')
 if (settingsBtn) {
   settingsBtn.addEventListener('click', () => {
     chrome.tabs.create({
-      url: 'https://tracely-pi.vercel.app',
+      url: 'https://tracely-phi.vercel.app',
     })
   })
 }

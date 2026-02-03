@@ -15,7 +15,7 @@ const app = express()
 // Middleware
 const allowedOrigins = [
   process.env.CORS_ORIGIN,
-  'https://tracely-pi.vercel.app',
+  'https://tracely-phi.vercel.app',
   'http://localhost:5173',
 ].filter(Boolean)
 
