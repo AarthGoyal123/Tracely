@@ -4,17 +4,24 @@ let connected = false
 
 export const connectDB = async () => {
   if (connected) {
-    console.log('✅ Already connected to MongoDB')
+    console.log('Already connected to MongoDB')
     return
   }
 
   try {
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/privacy-lens'
-    await mongoose.connect(mongoURI)
+    await mongoose.connect(mongoURI, {
+      maxPoolSize: 10, 
+      minPoolSize: 2, 
+      maxIdleTimeMS: 45000, 
+      serverSelectionTimeoutMS: 5000, 
+      socketTimeoutMS: 45000, 
+      retryWrites: true,
+    })
     connected = true
-    console.log('✅ Connected to MongoDB')
+    console.log('Connected to MongoDB with optimized connection pool')
   } catch (err) {
-    console.error('❌ MongoDB connection error:', err)
+    console.error('MongoDB connection error:', err)
     process.exit(1)
   }
 }

@@ -5,7 +5,7 @@ import { Site } from '../models/Site.js'
 
 const router = express.Router()
 
-// GET /analytics/top-trackers
+
 router.get('/top-trackers', async (req, res) => {
   try {
     const trackers = await Tracker.find()
@@ -28,7 +28,7 @@ router.get('/top-trackers', async (req, res) => {
   }
 })
 
-// GET /analytics/trends
+
 router.get('/trends', async (req, res) => {
   try {
     // Get aggregated trends
@@ -57,7 +57,7 @@ router.get('/trends', async (req, res) => {
   }
 })
 
-// GET /analytics/network
+
 router.get('/network', async (req, res) => {
   try {
     const sites = await Site.find().limit(20).select('domain trackerCount').lean()
@@ -78,15 +78,25 @@ router.get('/network', async (req, res) => {
       })),
     ]
 
-    const edges = []
-    const events = await Event.find().limit(100)
-    events.forEach((evt) => {
-      edges.push({
-        source: evt.domain,
-        target: evt.trackerDomain,
-        weight: 1,
-      })
-    })
+    
+    const edges = await Event.aggregate([
+      { $limit: 50 }, 
+      {
+        $group: {
+          _id: { domain: '$domain', trackerDomain: '$trackerDomain' },
+          weight: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          source: '$_id.domain',
+          target: '$_id.trackerDomain',
+          weight: 1,
+        },
+      },
+      { $limit: 50 }, 
+    ])
 
     res.json({
       success: true,
@@ -96,11 +106,12 @@ router.get('/network', async (req, res) => {
       },
     })
   } catch (err) {
+    console.error('Error fetching network data:', err)
     res.status(500).json({ error: 'Failed to fetch network data' })
   }
 })
 
-// GET /analytics/summary
+
 router.get('/summary', async (req, res) => {
   try {
     const totalSites = await Site.countDocuments()
@@ -132,15 +143,12 @@ router.get('/summary', async (req, res) => {
 
 export default router
 
-// 🔥 KILLER FEATURE: GET /analytics/recent-changes
-// Shows behavioral changes across ALL sites - for investigators
 router.get('/recent-changes', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - days)
 
-    // Find all sites with recent score history changes
     const sites = await Site.find({
       'scoreHistory.date': { $gte: cutoffDate },
     })
@@ -168,7 +176,6 @@ router.get('/recent-changes', async (req, res) => {
       })
     })
 
-    // Sort by date descending
     allChanges.sort((a, b) => new Date(b.date) - new Date(a.date))
 
     res.json({
@@ -176,7 +183,7 @@ router.get('/recent-changes', async (req, res) => {
       data: {
         timeframe: `Last ${days} days`,
         changeCount: allChanges.length,
-        changes: allChanges.slice(0, 50), // Limit to 50 most recent
+        changes: allChanges.slice(0, 50), 
       },
     })
   } catch (err) {

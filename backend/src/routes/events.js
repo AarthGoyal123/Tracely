@@ -8,7 +8,6 @@ import { recordScoreSnapshot } from '../utils/change-detection.js'
 
 const router = express.Router()
 
-// POST /events - Report tracking event
 router.post('/', async (req, res) => {
   try {
     const { domain, requestUrl, trackerDomain, metadata } = req.body
@@ -20,11 +19,9 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Domain is required' })
     }
 
-    // Get tracker info
     const trackerInfo = getTrackerInfo(trackerDomain)
     const isThirdPartyRequest = isThirdParty(trackerDomain, domain)
 
-    // Create event
     const event = new Event({
       domain: domain.toLowerCase(),
       requestUrl,
@@ -39,33 +36,36 @@ router.post('/', async (req, res) => {
 
     await event.save()
 
-    // Update site counts
-    const events = await Event.find({ domain: domain.toLowerCase() })
-    let trackerCount = 0
-    let thirdPartyCount = 0
-    let cookieCount = 0
-    const uniqueTrackerDomains = new Set()
+    // Update site counts using aggregation (memory-efficient)
+    const aggregationResult = await Event.aggregate([
+      { $match: { domain: domain.toLowerCase() } },
+      {
+        $group: {
+          _id: null,
+          trackerCount: { $sum: 1 },
+          uniqueTrackerCount: { $addToSet: '$trackerDomain' },
+          thirdPartyCount: { $sum: { $cond: ['$metadata.isThirdParty', 1, 0] } },
+          cookieCount: { $sum: { $cond: [{ $eq: ['$trackerType', 'cookie'] }, 1, 0] } },
+        },
+      },
+    ])
 
-    events.forEach((evt) => {
-      trackerCount++ // Count every event as a tracker event
-      if (evt.trackerDomain) {
-        uniqueTrackerDomains.add(evt.trackerDomain)
-      }
-      if (evt.metadata?.isThirdParty) thirdPartyCount++
-      if (evt.trackerType === 'cookie') cookieCount++
-    })
-    // Ensure uniqueTrackerCount >= 1 if trackerCount > 0 (logical consistency)
+    const aggregated = aggregationResult[0] || { trackerCount: 0, uniqueTrackerCount: [], thirdPartyCount: 0, cookieCount: 0 }
+    const trackerCount = aggregated.trackerCount
+    const thirdPartyCount = aggregated.thirdPartyCount
+    const cookieCount = aggregated.cookieCount
+    const uniqueTrackerDomains = new Set(aggregated.uniqueTrackerCount || [])
+    
     const uniqueTrackerCount = Math.max(uniqueTrackerDomains.size, trackerCount > 0 ? 1 : 0)
     const score = calculatePrivacyScore(trackerCount, thirdPartyCount, cookieCount)
     
     console.log(`[Events API] Updated ${domain.toLowerCase()}: score=${score}, trackers=${trackerCount}, 3rdParty=${thirdPartyCount}`)
     
-    // Set risk level (adjusted for new scoring scale: 0-30 Low, 31-60 Medium, 61-80 High, 81-100 Critical)
+   
     let riskLevel = 'low'
     if (score >= 81) riskLevel = 'high'
     else if (score >= 61) riskLevel = 'medium'
 
-    // Upsert site (update or create)
     const site = await Site.findOneAndUpdate(
       { domain: domain.toLowerCase() },
       {
@@ -87,12 +87,9 @@ router.post('/', async (req, res) => {
       { upsert: true, new: true }
     )
 
-    // 🔥 KILLER FEATURE: Record score history and detect behavioral changes
-    // This is what differentiates us from Brave - we have MEMORY
     const currentTrackerDomains = [...uniqueTrackerDomains]
     const { snapshot, changeDetection } = recordScoreSnapshot(site, currentTrackerDomains)
     
-    // Save history to site (atomic update to avoid version conflicts)
     await Site.updateOne(
       { _id: site._id },
       {
@@ -109,7 +106,6 @@ router.post('/', async (req, res) => {
       console.log(`[Change Detection] ${domain}: ${changeDetection.changeDescription}`)
     }
 
-    // Update or create tracker (upsert)
     await Tracker.findOneAndUpdate(
       { domain: trackerDomain.toLowerCase() },
       {
