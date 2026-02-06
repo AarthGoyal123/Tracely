@@ -1,5 +1,7 @@
 # Tracely
 
+**Firefox Add-on**: https://addons.mozilla.org/addon/tracely/
+
 ![Tracely dashboard](Public/dashboard01.jpeg)
 
 **Most tools protect users. Ours creates evidence.**
@@ -137,8 +139,11 @@ cd ../frontend
 npm install
 npm run dev
 
-# Extension (load in Chrome)
-# Navigate to chrome://extensions/ → "Load unpacked" → select extension/
+# Extension (Firefox)
+# Install from https://addons.mozilla.org/addon/tracely/
+
+# Extension (Chrome)
+# Chrome://extensions/ → "Load unpacked" → select extension/
 ```
 
 Then visit `http://localhost:5173`
